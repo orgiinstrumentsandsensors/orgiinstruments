@@ -704,7 +704,20 @@ footer p { font-size: 0.75rem; color: rgba(255,255,255,0.3); }
   body > *:not(#tmPrintContainer) { display: none !important; }
   #tmPrintContainer { display: block !important; }
 }
+
+/* Supabase sync toast */
+#sbSyncToast {
+  position: fixed; bottom: 1.5rem; right: 1.5rem;
+  background: var(--ink); color: #fff;
+  padding: 0.55rem 1.1rem; border-radius: 8px;
+  font-size: 0.78rem; font-weight: 600;
+  font-family: var(--sans);
+  z-index: 9998; display: none;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+}
 </style>
+  <!-- Supabase SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
@@ -1068,7 +1081,7 @@ footer p { font-size: 0.75rem; color: rgba(255,255,255,0.3); }
         <div class="cic-icon icon-blue">📧</div>
         <div>
           <div class="cic-label">Email</div>
-          <div class="cic-val">orginabllab@gmail.com</div>
+          <div class="cic-val"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="80eff2e7e9eee1e2ecece1e2c0e7ede1e9ecaee3efed">[email&#160;protected]</a></div>
         </div>
       </div>
       <div class="contact-info-card">
@@ -1641,7 +1654,7 @@ footer p { font-size: 0.75rem; color: rgba(255,255,255,0.3); }
 </div>
 
 <!-- ═══════════ SCRIPT ═══════════ -->
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 // ── Credentials ──────────────────────────────────
 const USERS = {
   // QM
@@ -1656,9 +1669,44 @@ const USERS = {
 let currentUser  = null;
 let currentRole  = 'staff';   // selected tab
 let attStatus    = null;
-let attendance   = JSON.parse(localStorage.getItem('orgi_att') || '{}');
+// ════════════════════════════════════════════════════════
+// SUPABASE CONFIG
+// ════════════════════════════════════════════════════════
+const _sbUrl = "https://ylaiexinvzkeykanplev.supabase.co";
+const _sbKey = "sb_publishable_UJrR2J5uzoejZQfm7Tx5Gg_K480tCOJ";
+const _sb = window.supabase.createClient(_sbUrl, _sbKey);
 
-function saveAtt() { localStorage.setItem('orgi_att', JSON.stringify(attendance)); }
+// In-memory state (loaded from Supabase on login)
+let attendance   = {};   // { username: [{date,status,note,name,empId},...] }
+
+// ── Supabase save/load helpers ────────────────────────
+async function saveAtt() {
+  showSyncToast();
+  // Persist the current user's attendance array to Supabase
+  if (!currentUser) return;
+  const key  = currentUser.username;
+  const rows = attendance[key] || [];
+  try {
+    // Upsert a single doc keyed by username
+    await _sb.from('attendance').upsert(
+      { username: key, records: JSON.stringify(rows), updated_at: new Date().toISOString() },
+      { onConflict: 'username' }
+    );
+  } catch(e) { console.warn('saveAtt error', e); }
+}
+
+async function loadAttendance() {
+  try {
+    const { data } = await _sb.from('attendance').select('*');
+    if (data) {
+      attendance = {};
+      data.forEach(row => {
+        try { attendance[row.username] = JSON.parse(row.records || '[]'); }
+        catch(e) { attendance[row.username] = []; }
+      });
+    }
+  } catch(e) { console.warn('loadAttendance error', e); }
+}
 
 // ── Login modal ───────────────────────────────────
 function openLogin() {
@@ -1692,8 +1740,38 @@ function doLogin() {
   err.style.display = 'none';
   currentUser = { ...user, username: u };
   closeLogin();
-  if (user.role === 'staff') openStaffPortal();
-  else openQMPortal();
+  // Show loading spinner while fetching data
+  showSBLoader();
+  Promise.all([loadAttendance(), loadAppData()]).then(function() {
+    hideSBLoader();
+    if (user.role === 'staff') openStaffPortal();
+    else openQMPortal();
+  }).catch(function(e) {
+    hideSBLoader();
+    console.warn('Data load error:', e);
+    if (user.role === 'staff') openStaffPortal();
+    else openQMPortal();
+  });
+}
+
+// ── Loading spinner ───────────────────────────────────
+function showSBLoader() {
+  var el = document.getElementById('sbLoader');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'sbLoader';
+    el.style.cssText = 'position:fixed;inset:0;background:rgba(255,255,255,0.82);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;font-family:var(--sans);backdrop-filter:blur(4px);';
+    el.innerHTML = '<div style="width:40px;height:40px;border:4px solid #e0e0e0;border-top-color:#1a56db;border-radius:50%;animation:spin 0.7s linear infinite;"></div><span style="font-size:0.9rem;font-weight:600;color:#555;">Connecting to database…</span>';
+    var style = document.createElement('style');
+    style.textContent = '@keyframes spin{to{transform:rotate(360deg)}}';
+    document.head.appendChild(style);
+    document.body.appendChild(el);
+  }
+  el.style.display = 'flex';
+}
+function hideSBLoader() {
+  var el = document.getElementById('sbLoader');
+  if (el) el.style.display = 'none';
 }
 
 function doLogout() {
@@ -2071,7 +2149,7 @@ function previewDueDates() {
 }
 
 // ── Staff: Save ONE due date entry ─────────────────
-function staffSaveDueDate() {
+async function staffSaveDueDate() {
   var title     = document.getElementById('sddTitle').value.trim();
   var type      = document.getElementById('sddType').value;
   var client    = document.getElementById('sddClient').value.trim();
@@ -2145,7 +2223,7 @@ function renderStaffDueDates() {
   }).join('');
 }
 
-function staffDeleteDD(id) {
+async function staffDeleteDD(id) {
   if (!confirm('Delete this due date?')) return;
   dueDates = dueDates.filter(function(d){ return !(d.id === id && d.empId === currentUser.empId); });
   saveDDs();
@@ -2159,7 +2237,7 @@ function selectStatus(s) {
   document.getElementById('btnHalf').className    = 'att-status-btn' + (s==='Half Day' ? ' selected-half'    : '');
 }
 
-function submitAttendance() {
+async function submitAttendance() {
   const date = document.getElementById('attDate').value;
   const note = document.getElementById('attNote').value.trim();
   if (!date) { alert('Please select a date.'); return; }
@@ -2169,7 +2247,7 @@ function submitAttendance() {
   // Remove duplicate for same date
   attendance[key] = attendance[key].filter(r => r.date !== date);
   attendance[key].unshift({ date, status: attStatus, note, name: currentUser.name, empId: currentUser.empId });
-  saveAtt();
+  await saveAtt();
   // Hide the form — already marked today
   document.getElementById('attFormInputs').style.display  = 'none';
   document.getElementById('attAlreadyDone').style.display = 'block';
@@ -2217,7 +2295,7 @@ function renderStaffHistory() {
   }).join('');
 }
 
-function requestAttEdit(date) {
+async function requestAttEdit(date) {
   const key = currentUser.username;
   // Prevent duplicate pending request
   if (editRequests.find(r => r.username===key && r.date===date && r.status==='pending')) {
@@ -2237,7 +2315,7 @@ function requestAttEdit(date) {
   alert('Edit request sent to QM!');
 }
 
-function saveAttEdit(date) {
+async function saveAttEdit(date) {
   const key    = currentUser.username;
   const selEl  = document.getElementById('editSel_' + date);
   if (!selEl) return;
@@ -2255,14 +2333,65 @@ function saveAttEdit(date) {
 
 // ── QM Portal ─────────────────────────────────────
 let currentQMTab = 'attendance';
-let dueDates    = JSON.parse(localStorage.getItem('orgi_dd')       || '[]');
-let editRequests = JSON.parse(localStorage.getItem('orgi_att_req') || '[]');
-function saveEditReqs() { localStorage.setItem('orgi_att_req', JSON.stringify(editRequests)); }
-let statsData = JSON.parse(localStorage.getItem('orgi_stats') || '[]');
+let dueDates     = [];
+let editRequests = [];
+let statsData    = [];
 let chartInstance = null;
 
-function saveDDs()    { localStorage.setItem('orgi_dd',    JSON.stringify(dueDates)); }
-function saveStatsD() { localStorage.setItem('orgi_stats', JSON.stringify(statsData)); }
+// ── Save helpers (Supabase) ───────────────────────────
+async function saveDDs() {
+  showSyncToast();
+  try {
+    await _sb.from('app_data').upsert(
+      { key: 'orgi_dd', value: JSON.stringify(dueDates), updated_at: new Date().toISOString() },
+      { onConflict: 'key' }
+    );
+  } catch(e) { console.warn('saveDDs error', e); }
+}
+
+async function saveEditReqs() {
+  showSyncToast();
+  try {
+    await _sb.from('app_data').upsert(
+      { key: 'orgi_att_req', value: JSON.stringify(editRequests), updated_at: new Date().toISOString() },
+      { onConflict: 'key' }
+    );
+  } catch(e) { console.warn('saveEditReqs error', e); }
+}
+
+async function saveStatsD() {
+  showSyncToast();
+  try {
+    await _sb.from('app_data').upsert(
+      { key: 'orgi_stats', value: JSON.stringify(statsData), updated_at: new Date().toISOString() },
+      { onConflict: 'key' }
+    );
+  } catch(e) { console.warn('saveStatsD error', e); }
+}
+
+async function loadAppData() {
+  try {
+    const { data } = await _sb.from('app_data').select('*');
+    if (data) {
+      data.forEach(row => {
+        try {
+          const parsed = JSON.parse(row.value || '[]');
+          if (row.key === 'orgi_dd')      dueDates     = parsed;
+          if (row.key === 'orgi_att_req') editRequests = parsed;
+          if (row.key === 'orgi_stats')   statsData    = parsed;
+        } catch(e) {}
+      });
+    }
+  } catch(e) { console.warn('loadAppData error', e); }
+}
+
+function showSyncToast() {
+  const t = document.getElementById('sbSyncToast');
+  if (!t) return;
+  t.style.display = 'block';
+  clearTimeout(window._sbToastTimer);
+  window._sbToastTimer = setTimeout(() => { t.style.display = 'none'; }, 2000);
+}
 
 function openQMPortal() {
   document.getElementById('qmUsername').textContent = currentUser.name + ' · ' + currentUser.empId;
@@ -2395,7 +2524,7 @@ function renderQMEditRequests() {
   }).join('');
 }
 
-function approveEditReq(id) {
+async function approveEditReq(id) {
   const req = editRequests.find(r=>r.id===id);
   if (!req) return;
   req.status = 'approved';
@@ -2403,7 +2532,7 @@ function approveEditReq(id) {
   renderQMEditRequests();
 }
 
-function rejectEditReq(id) {
+async function rejectEditReq(id) {
   if (!confirm('Reject this edit request?')) return;
   editRequests = editRequests.filter(r=>r.id!==id);
   saveEditReqs();
@@ -2510,7 +2639,7 @@ function openEditDD(id) {
 function closeEditDD() { document.getElementById('editDDModal').classList.remove('open'); }
 document.getElementById('editDDModal')?.addEventListener('click', function(e){ if(e.target===this) closeEditDD(); });
 
-function saveEditDD() {
+async function saveEditDD() {
   const id     = parseInt(document.getElementById('editDDId').value);
   const idx    = dueDates.findIndex(d=>d.id===id);
   if (idx<0) return;
@@ -2523,7 +2652,7 @@ function saveEditDD() {
   saveDDs(); closeEditDD(); renderQMDueDates();
 }
 
-function qmDeleteDD(id) {
+async function qmDeleteDD(id) {
   if (!confirm('Delete this due date?')) return;
   dueDates = dueDates.filter(d=>d.id!==id);
   saveDDs(); renderQMDueDates();
@@ -2552,7 +2681,7 @@ setTimeout(()=>{
   });
 },500);
 
-function saveStats() {
+async function saveStats() {
   const month  = document.getElementById('sfMonth').value;
   const calCnt = parseInt(document.getElementById('sfCalCount').value)||0;
   const supCnt = parseInt(document.getElementById('sfSupCount').value)||0;
@@ -2569,7 +2698,7 @@ function saveStats() {
   renderStats();
 }
 
-function deleteStats(month) {
+async function deleteStats(month) {
   if (!confirm('Delete this month?')) return;
   statsData = statsData.filter(s=>s.month!==month);
   saveStatsD(); renderStats();
@@ -2797,10 +2926,4 @@ function roundRect(ctx,x,y,w,h,r){
     </div>
     <div style="display:flex;gap:0.75rem;margin-top:1.25rem;">
       <button class="att-submit-btn" onclick="saveEditDD()">Save Changes</button>
-      <button onclick="closeEditDD()" style="padding:0.7rem 1.5rem;border:1.5px solid #e0e0e0;border-radius:8px;background:#f7f7f5;font-family:var(--sans);font-size:0.85rem;font-weight:600;cursor:pointer;">Cancel</button>
-    </div>
-  </div>
-</div>
-
-</body>
-</html>
+      <button onclick="closeEditD
