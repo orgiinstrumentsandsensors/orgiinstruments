@@ -322,6 +322,175 @@ section { padding: 6rem 3rem; }
 .nabl-badge-letter { font-family: var(--display); font-size: 1.6rem; font-weight: 800; color: #fff; }
 .nabl-badge-label { font-size: 0.68rem; color: rgba(255,255,255,0.45); letter-spacing: 0.08em; text-transform: uppercase; margin-top: 0.2rem; }
 
+/* ── SUPPLIES ── */
+.supplies { background: var(--bg); }
+.supply-carousel-wrap {
+  position: relative;
+  margin-top: 2.5rem;
+}
+.supply-carousel-track-outer {
+  overflow: hidden;
+  border-radius: 14px;
+}
+.supply-carousel-track {
+  display: flex;
+  gap: 1.25rem;
+  transition: transform 0.4s cubic-bezier(.4,0,.2,1);
+}
+.supply-card {
+  position: relative;
+  border-radius: 14px;
+  overflow: hidden;
+  cursor: pointer;
+  background: var(--white);
+  border: 1px solid var(--ink-15);
+  transition: transform 0.2s, box-shadow 0.2s;
+  flex: 0 0 calc(25% - 0.94rem);
+  min-width: 0;
+}
+.supply-card:hover { transform: translateY(-4px); box-shadow: 0 14px 36px rgba(26,86,219,0.12); }
+.supply-card img {
+  width: 100%; height: 190px; object-fit: cover; display: block;
+}
+.supply-card-label {
+  background: rgba(26,26,24,0.82);
+  color: #fff;
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 0.6rem 0.9rem;
+  text-align: center;
+}
+.supply-card-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(26,86,219,0.85);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  opacity: 0;
+  transition: opacity 0.25s;
+}
+.supply-card:hover .supply-card-overlay { opacity: 1; }
+.supply-quote-btn {
+  background: #fff;
+  color: var(--blue);
+  border: none;
+  border-radius: 8px;
+  padding: 0.65rem 1.4rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: var(--sans);
+  transition: background 0.2s, color 0.2s;
+}
+.supply-quote-btn:hover { background: var(--blue-light); }
+.supply-carousel-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 42px; height: 42px;
+  border-radius: 50%;
+  background: var(--white);
+  border: 1px solid var(--ink-15);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem;
+  color: var(--ink);
+  z-index: 10;
+  transition: background 0.2s, color 0.2s;
+}
+.supply-carousel-btn:hover { background: var(--blue); color: #fff; }
+.supply-carousel-btn.prev { left: -21px; }
+.supply-carousel-btn.next { right: -21px; }
+.supply-carousel-dots {
+  display: flex; justify-content: center; gap: 8px; margin-top: 1.5rem;
+}
+.supply-carousel-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--ink-15); cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+.supply-carousel-dot.active { background: var(--blue); transform: scale(1.3); }
+
+/* ── SUPPLY MODAL ── */
+#supplyModal {
+  display: none;
+  position: fixed; inset: 0; z-index: 900;
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(4px);
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+#supplyModal.open { display: flex; }
+.supply-modal-box {
+  background: var(--white);
+  border-radius: 20px;
+  max-width: 780px; width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.25);
+  animation: modalIn 0.28s ease;
+  position: relative;
+}
+.supply-modal-img {
+  width: 100%; height: 340px; object-fit: cover;
+  border-radius: 20px 20px 0 0; display: block;
+}
+.supply-modal-body {
+  padding: 2rem 2.25rem 2.5rem;
+}
+.supply-modal-title {
+  font-family: var(--display);
+  font-size: 1.5rem; font-weight: 800;
+  color: var(--ink); margin-bottom: 0.5rem;
+}
+.supply-modal-tag {
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  background: var(--blue-light); color: var(--blue);
+  font-size: 0.7rem; font-weight: 700; letter-spacing: 0.06em;
+  text-transform: uppercase; padding: 0.28rem 0.75rem;
+  border-radius: 100px; margin-bottom: 1rem;
+}
+.supply-modal-desc {
+  font-size: 0.92rem; color: var(--ink-50); line-height: 1.8;
+  margin-bottom: 1.5rem;
+}
+.supply-modal-features {
+  display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.75rem;
+}
+.supply-modal-feat {
+  background: var(--bg); border: 1px solid var(--ink-15);
+  border-radius: 8px; padding: 0.3rem 0.75rem;
+  font-size: 0.78rem; font-weight: 600; color: var(--ink);
+}
+.supply-modal-actions {
+  display: flex; gap: 1rem; flex-wrap: wrap;
+}
+.supply-modal-quote-btn {
+  background: var(--blue); color: #fff;
+  border: none; border-radius: 8px;
+  padding: 0.85rem 2rem;
+  font-size: 0.88rem; font-weight: 700;
+  cursor: pointer; font-family: var(--sans);
+  transition: background 0.2s;
+}
+.supply-modal-quote-btn:hover { background: #1446bf; }
+.supply-modal-close {
+  position: absolute; top: 1rem; right: 1rem;
+  width: 36px; height: 36px; border-radius: 50%;
+  background: rgba(255,255,255,0.85);
+  border: 1px solid var(--ink-15);
+  font-size: 1.1rem; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--ink); font-family: var(--sans);
+  transition: background 0.2s;
+}
+.supply-modal-close:hover { background: #fee2e2; color: #b91c1c; }
+
 /* ── CONTACT ── */
 .contact { background: var(--white); display: grid; grid-template-columns: 1fr 1.1fr; gap: 5rem; align-items: start; }
 .contact-info-cards { margin-top: 2rem; display: flex; flex-direction: column; gap: 1rem; }
@@ -1069,6 +1238,7 @@ footer p { font-size: 0.75rem; color: rgba(255,255,255,0.3); }
   <ul class="nav-links">
     <li><a href="#about">About</a></li>
     <li><a href="#services">Services</a></li>
+    <li><a href="#supplies">Supplies</a></li>
     <li><a href="#contact">Contact</a></li>
   </ul>
   <button class="staff-login-btn" onclick="openLogin()">
@@ -1411,6 +1581,132 @@ footer p { font-size: 0.75rem; color: rgba(255,255,255,0.3); }
 </div>
 
 <!-- CONTACT -->
+<!-- SUPPLIES -->
+<section class="supplies" id="supplies">
+  <div class="section-pill pill-orange">Our Supplies</div>
+  <h2 class="section-h2">Instruments We Supply</h2>
+  <p style="font-size:0.92rem;color:var(--ink-50);margin-top:0.75rem;max-width:520px;line-height:1.7;">Click any instrument to explore details and request a quote. We supply precision measurement and control instruments for industrial use.</p>
+
+  <div class="supply-carousel-wrap">
+    <button class="supply-carousel-btn prev" id="supplyPrev" onclick="supplyCarouselNav(-1)">&#8592;</button>
+    <div class="supply-carousel-track-outer">
+      <div class="supply-carousel-track" id="supplyTrack">
+
+        <!-- Card 1 -->
+        <div class="supply-card" onclick="openSupplyModal(0)">
+          <img src="https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?w=500&q=80" alt="Temperature Controllers">
+          <div class="supply-card-label">Temperature Controllers</div>
+          <div class="supply-card-overlay">
+            <button class="supply-quote-btn">View Details</button>
+          </div>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="supply-card" onclick="openSupplyModal(1)">
+          <img src="https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=500&q=80" alt="Scanning Data Logger">
+          <div class="supply-card-label">Scanning Data Logger</div>
+          <div class="supply-card-overlay">
+            <button class="supply-quote-btn">View Details</button>
+          </div>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="supply-card" onclick="openSupplyModal(2)">
+          <img src="https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=500&q=80" alt="Thermocouple Sensor">
+          <div class="supply-card-label">Thermocouple Sensor</div>
+          <div class="supply-card-overlay">
+            <button class="supply-quote-btn">View Details</button>
+          </div>
+        </div>
+
+        <!-- Card 4 -->
+        <div class="supply-card" onclick="openSupplyModal(3)">
+          <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?w=500&q=80" alt="SMPS">
+          <div class="supply-card-label">SMPS Power Supply</div>
+          <div class="supply-card-overlay">
+            <button class="supply-quote-btn">View Details</button>
+          </div>
+        </div>
+
+        <!-- Card 5 -->
+        <div class="supply-card" onclick="openSupplyModal(4)">
+          <img src="https://images.unsplash.com/photo-1609592806596-b002f6d8c0c2?w=500&q=80" alt="Electronic Timers">
+          <div class="supply-card-label">Electronic Timers</div>
+          <div class="supply-card-overlay">
+            <button class="supply-quote-btn">View Details</button>
+          </div>
+        </div>
+
+        <!-- Card 6 -->
+        <div class="supply-card" onclick="openSupplyModal(5)">
+          <img src="https://images.unsplash.com/photo-1558346490-a72e53ae2d4f?w=500&q=80" alt="Pressure Gauges">
+          <div class="supply-card-label">Pressure Gauges</div>
+          <div class="supply-card-overlay">
+            <button class="supply-quote-btn">View Details</button>
+          </div>
+        </div>
+
+        <!-- Card 7 -->
+        <div class="supply-card" onclick="openSupplyModal(6)">
+          <img src="https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=500&q=80" alt="RTD Sensors">
+          <div class="supply-card-label">RTD Sensors</div>
+          <div class="supply-card-overlay">
+            <button class="supply-quote-btn">View Details</button>
+          </div>
+        </div>
+
+        <!-- Card 8 -->
+        <div class="supply-card" onclick="openSupplyModal(7)">
+          <img src="https://images.unsplash.com/photo-1580983561371-7f4b242d8ec0?w=500&q=80" alt="Digital Panel Meters">
+          <div class="supply-card-label">Digital Panel Meters</div>
+          <div class="supply-card-overlay">
+            <button class="supply-quote-btn">View Details</button>
+          </div>
+        </div>
+
+        <!-- Card 9 -->
+        <div class="supply-card" onclick="openSupplyModal(8)">
+          <img src="https://images.unsplash.com/photo-1601134467661-3d775b999c4b?w=500&q=80" alt="Solid State Relays">
+          <div class="supply-card-label">Solid State Relays</div>
+          <div class="supply-card-overlay">
+            <button class="supply-quote-btn">View Details</button>
+          </div>
+        </div>
+
+        <!-- Card 10 -->
+        <div class="supply-card" onclick="openSupplyModal(9)">
+          <img src="https://images.unsplash.com/photo-1571171637578-41bc2dd41cd2?w=500&q=80" alt="PID Controllers">
+          <div class="supply-card-label">PID Controllers</div>
+          <div class="supply-card-overlay">
+            <button class="supply-quote-btn">View Details</button>
+          </div>
+        </div>
+
+      </div><!-- /track -->
+    </div><!-- /track-outer -->
+    <button class="supply-carousel-btn next" id="supplyNext" onclick="supplyCarouselNav(1)">&#8594;</button>
+  </div><!-- /wrap -->
+
+  <div class="supply-carousel-dots" id="supplyDots"></div>
+</section>
+
+<!-- SUPPLY DETAIL MODAL -->
+<div id="supplyModal">
+  <div class="supply-modal-box">
+    <button class="supply-modal-close" onclick="closeSupplyModal()">&#x2715;</button>
+    <img src="" alt="" class="supply-modal-img" id="supplyModalImg">
+    <div class="supply-modal-body">
+      <div class="supply-modal-tag">&#9679; Instrument Supply</div>
+      <div class="supply-modal-title" id="supplyModalTitle"></div>
+      <p class="supply-modal-desc" id="supplyModalDesc"></p>
+      <div class="supply-modal-features" id="supplyModalFeats"></div>
+      <div class="supply-modal-actions">
+        <button class="supply-modal-quote-btn" id="supplyModalQuoteBtn">Get Quotation Now</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <section class="contact" id="contact">
   <div>
     <div class="section-pill pill-teal">Contact Us</div>
@@ -2014,7 +2310,7 @@ footer p { font-size: 0.75rem; color: rgba(255,255,255,0.3); }
 </div>
 
 <!-- ═══════════ SCRIPT ═══════════ -->
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 // ── Credentials ──────────────────────────────────
 const USERS = {
   // QM
@@ -3403,6 +3699,165 @@ function roundRect(ctx,x,y,w,h,r){
   ctx.closePath();
 }
 
+// ════════════════════════════════════════════════
+// SUPPLY CAROUSEL + MODAL
+// ════════════════════════════════════════════════
+var SUPPLY_DATA = [
+  {
+    name: 'Temperature Controllers',
+    img: 'https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?w=900&q=85',
+    desc: 'High-precision temperature controllers designed for industrial furnaces, ovens, and process heating systems. Offers stable PID control with alarm outputs and RS-485 communication support.',
+    feats: ['PID / ON-OFF Modes', 'RS-485 Communication', 'Multi-range Input', 'Alarm Relay Output', 'DIN Rail Mount']
+  },
+  {
+    name: 'Scanning Data Logger',
+    img: 'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=900&q=85',
+    desc: 'Multi-channel scanning data loggers that record temperature, voltage, and process signals simultaneously. Ideal for validation studies, stability tests, and continuous monitoring.',
+    feats: ['Up to 20 Channels', 'USB / SD Card Storage', 'Real-time Graph Display', 'NABL Traceable', 'Alarm & Trend Logging']
+  },
+  {
+    name: 'Thermocouple Sensor',
+    img: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=900&q=85',
+    desc: 'Industrial-grade thermocouple sensors (Type K, J, T, R, S, B) with stainless steel sheathing for high-temperature and corrosive environments. Available in various lengths and connection types.',
+    feats: ['Type K / J / T / R / S / B', 'SS 316 Sheath', 'Custom Lengths', 'Miniature Connectors', 'High Temperature Rating']
+  },
+  {
+    name: 'SMPS Power Supply',
+    img: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=900&q=85',
+    desc: 'Switched-mode power supplies providing stable DC outputs for industrial control panels, PLCs, and instrumentation. Wide input range with short-circuit and overload protection.',
+    feats: ['5V / 12V / 24V DC Output', 'Wide AC Input Range', 'Short-circuit Protection', 'Compact DIN Size', 'CE Certified']
+  },
+  {
+    name: 'Electronic Timers',
+    img: 'https://images.unsplash.com/photo-1609592806596-b002f6d8c0c2?w=900&q=85',
+    desc: 'Programmable electronic timers for cyclic, delay-on, delay-off, and interval timing operations in industrial automation. Panel-mount design with easy keypad setting.',
+    feats: ['Multiple Timing Modes', 'LED Display', 'Relay Output', 'Wide Time Range (0.1s–99h)', 'Panel Mount 48×48 mm']
+  },
+  {
+    name: 'Pressure Gauges',
+    img: 'https://images.unsplash.com/photo-1558346490-a72e53ae2d4f?w=900&q=85',
+    desc: 'Bourdon tube pressure gauges for measuring gas and liquid pressures in pipelines, compressors, and process equipment. Available in glycerine-filled and dry versions.',
+    feats: ['0–600 Bar Ranges', 'SS Bourdon Tube', 'Glycerine-filled Option', 'ASME / EN 837-1', '63mm / 100mm Dial']
+  },
+  {
+    name: 'RTD Sensors',
+    img: 'https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=900&q=85',
+    desc: 'Pt100 and Pt1000 RTD sensors with high accuracy and long-term stability for laboratory, pharmaceutical, and food processing applications where precision temperature measurement is critical.',
+    feats: ['Pt100 / Pt1000', '±0.1°C Accuracy', '2 / 3 / 4 Wire', 'SS 316 Housing', 'NABL Calibration Available']
+  },
+  {
+    name: 'Digital Panel Meters',
+    img: 'https://images.unsplash.com/photo-1580983561371-7f4b242d8ec0?w=900&q=85',
+    desc: 'Multi-function digital panel meters for displaying temperature, current, voltage, pressure, and other process parameters. Bright LED display with field-configurable input ranges.',
+    feats: ['4½ Digit LED Display', 'Multi-input Configurable', 'Alarm Relay Output', '4–20 mA Retransmission', 'DIN 96×96 Mount']
+  },
+  {
+    name: 'Solid State Relays',
+    img: 'https://images.unsplash.com/photo-1601134467661-3d775b999c4b?w=900&q=85',
+    desc: 'Zero-crossing and random-fire solid state relays for fast, silent switching of resistive and inductive loads in temperature control and power regulation systems.',
+    feats: ['10A to 100A Rating', 'Zero-crossing Switching', 'LED Status Indicator', 'Integral Heat Sink Option', 'Wide Control Voltage']
+  },
+  {
+    name: 'PID Controllers',
+    img: 'https://images.unsplash.com/photo-1571171637578-41bc2dd41cd2?w=900&q=85',
+    desc: 'Auto-tuning PID controllers with dual display for setpoint and process value. Supports universal sensor inputs and provides relay, SSR drive, and analog outputs for closed-loop control.',
+    feats: ['Auto-tune PID', 'Universal Sensor Input', 'Dual LED Display', 'SSR / Relay Output', 'Modbus RTU Support']
+  }
+];
+
+var supplyCarouselIndex = 0;
+var supplyCardsPerView = 4;
+
+function supplyCarouselSetup() {
+  var track = document.getElementById('supplyTrack');
+  var dotsEl = document.getElementById('supplyDots');
+  if (!track || !dotsEl) return;
+  var cards = track.querySelectorAll('.supply-card');
+  var totalGroups = Math.ceil(cards.length / supplyCardsPerView);
+  dotsEl.innerHTML = '';
+  for (var i = 0; i < totalGroups; i++) {
+    var dot = document.createElement('div');
+    dot.className = 'supply-carousel-dot' + (i === 0 ? ' active' : '');
+    dot.onclick = (function(idx) { return function() { supplyCarouselGoTo(idx); }; })(i);
+    dotsEl.appendChild(dot);
+  }
+  supplyCarouselGoTo(0);
+}
+
+function supplyCarouselNav(dir) {
+  var track = document.getElementById('supplyTrack');
+  var cards = track.querySelectorAll('.supply-card');
+  var totalGroups = Math.ceil(cards.length / supplyCardsPerView);
+  var newIdx = supplyCarouselIndex + dir;
+  if (newIdx < 0) newIdx = totalGroups - 1;
+  if (newIdx >= totalGroups) newIdx = 0;
+  supplyCarouselGoTo(newIdx);
+}
+
+function supplyCarouselGoTo(idx) {
+  var track = document.getElementById('supplyTrack');
+  if (!track) return;
+  var cards = track.querySelectorAll('.supply-card');
+  var totalGroups = Math.ceil(cards.length / supplyCardsPerView);
+  supplyCarouselIndex = idx;
+  var cardWidth = cards[0] ? cards[0].offsetWidth : 0;
+  var gap = 20;
+  var offset = idx * supplyCardsPerView * (cardWidth + gap);
+  track.style.transform = 'translateX(-' + offset + 'px)';
+  var dots = document.querySelectorAll('.supply-carousel-dot');
+  dots.forEach(function(d, i) { d.classList.toggle('active', i === idx); });
+  var prevBtn = document.getElementById('supplyPrev');
+  var nextBtn = document.getElementById('supplyNext');
+  if (prevBtn) prevBtn.style.opacity = idx === 0 ? '0.4' : '1';
+  if (nextBtn) nextBtn.style.opacity = idx === totalGroups - 1 ? '0.4' : '1';
+}
+
+function openSupplyModal(idx) {
+  var data = SUPPLY_DATA[idx];
+  if (!data) return;
+  document.getElementById('supplyModalImg').src = data.img;
+  document.getElementById('supplyModalImg').alt = data.name;
+  document.getElementById('supplyModalTitle').textContent = data.name;
+  document.getElementById('supplyModalDesc').textContent = data.desc;
+  var featsEl = document.getElementById('supplyModalFeats');
+  featsEl.innerHTML = '';
+  data.feats.forEach(function(f) {
+    var span = document.createElement('span');
+    span.className = 'supply-modal-feat';
+    span.textContent = f;
+    featsEl.appendChild(span);
+  });
+  document.getElementById('supplyModalQuoteBtn').onclick = function() {
+    closeSupplyModal();
+    requestQuote(data.name);
+  };
+  document.getElementById('supplyModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeSupplyModal() {
+  document.getElementById('supplyModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  supplyCarouselSetup();
+  var modal = document.getElementById('supplyModal');
+  if (modal) modal.addEventListener('click', function(e) { if (e.target === this) closeSupplyModal(); });
+});
+window.addEventListener('resize', function() { supplyCarouselGoTo(supplyCarouselIndex); });
+
+function requestQuote(instrumentName) {
+  var contactSection = document.getElementById('contact');
+  if (contactSection) contactSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  setTimeout(function() {
+    var sel = document.getElementById('cfService');
+    if (sel) { for (var i = 0; i < sel.options.length; i++) { if (sel.options[i].text === 'Instrument Supply') { sel.selectedIndex = i; break; } } }
+    var msg = document.getElementById('cfMessage');
+    if (msg) msg.value = 'I would like to request a quote for: ' + instrumentName;
+  }, 600);
+}
+
 // ════════════════════════════════════════════════════
 // SESSION RESTORE — reopen portal if session exists
 // ════════════════════════════════════════════════════
@@ -3489,5 +3944,4 @@ window.addEventListener('popstate', function(e) {
     </div>
     <div class="login-form-group" style="margin-top:0.5rem;">
       <label>Status</label>
-      <div style="display:flex;gap:0.75rem;margin-top:0.4rem;">
-        <label style="display:flex;align-items:center;gap:6px;font-size:0.85rem;cursor:pointer;text-transform:none;letter-spacing:0;"><input type="radio" name="editDDStatus" value=
+      <div s
